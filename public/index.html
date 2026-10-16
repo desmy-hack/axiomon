@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Axiomon</title>
+  <script>
+    // Applique le thème avant l'affichage pour éviter un flash
+    (function () {
+      try {
+        var t = localStorage.getItem('axn_theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.dataset.theme = t;
+      } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 4.2-1"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  </svg>
+
+  <a class="skip" href="#main">Aller au contenu</a>
+
+  <header class="top">
+    <span class="mark">Axiomon</span>
+    <nav id="nav" class="nav" aria-label="Navigation principale" hidden>
+      <button type="button" data-view="wallet" aria-current="page">Portefeuille</button>
+      <button type="button" data-view="token">Le token</button>
+      <button type="button" data-view="admin" id="nav-admin" hidden>Administration</button>
+    </nav>
+    <div class="top-actions">
+      <button id="theme" class="icon-btn" type="button" aria-label="Passer au thème sombre"></button>
+      <div id="session" class="session" hidden>
+        <span id="whoami" class="whoami"></span>
+        <button id="logout" class="link" type="button">Se déconnecter</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- Connexion et inscription -->
+    <section id="auth" class="auth" hidden>
+      <div class="auth-hero">
+        <svg class="guilloche" id="guilloche-auth" viewBox="-190 -190 380 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"></svg>
+        <div class="auth-hero-body">
+          <h1>Ton portefeuille Axiomon, en deux minutes</h1>
+          <p>Crée un compte : une adresse est générée pour toi sur le réseau de test Sepolia. Reçois des AXN, envoie-en à d’autres utilisateurs et suis chaque transaction.</p>
+        </div>
+      </div>
+      <div class="auth-card">
+        <div class="tabs" role="tablist">
+          <button id="tab-login" role="tab" aria-selected="true" type="button">Connexion</button>
+          <button id="tab-register" role="tab" aria-selected="false" type="button">Créer un compte</button>
+        </div>
+        <form id="login-form" class="stack" autocomplete="on">
+          <label>Nom d’utilisateur
+            <input name="username" required autocomplete="username" autocapitalize="none" spellcheck="false">
+          </label>
+          <label>Mot de passe
+            <span class="pw">
+              <input name="password" type="password" required autocomplete="current-password">
+              <button type="button" class="pw-toggle" aria-label="Afficher le mot de passe"><svg class="ic" viewBox="0 0 24 24"><use href="#i-eye"/></svg></button>
+            </span>
+          </label>
+          <button class="primary" type="submit">Se connecter</button>
+        </form>
+        <form id="register-form" class="stack" autocomplete="on" hidden>
+          <label>Nom d’utilisateur
+            <input name="username" required minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" autocomplete="username" autocapitalize="none" spellcheck="false">
+            <span class="field-hint">3 à 20 caractères : lettres, chiffres, _</span>
+          </label>
+          <label>Adresse e-mail
+            <input name="email" type="email" required autocomplete="email">
+          </label>
+          <label>Mot de passe
+            <span class="pw">
+              <input name="password" id="reg-password" type="password" required minlength="8" autocomplete="new-password">
+              <button type="button" class="pw-toggle" aria-label="Afficher le mot de passe"><svg class="ic" viewBox="0 0 24 24"><use href="#i-eye"/></svg></button>
+            </span>
+            <span class="strength" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            <span id="strength-text" class="field-hint">8 caractères minimum</span>
+          </label>
+          <button class="primary" type="submit">Créer mon compte</button>
+        </form>
+        <p id="auth-msg" class="msg" role="alert"></p>
+      </div>
+    </section>
+
+    <!-- Application -->
+    <div id="app" hidden>
+      <!-- Vue portefeuille -->
+      <section id="view-wallet" class="wallet-grid">
+        <div class="col-left">
+          <div class="note-wrap" id="note-wrap">
+            <article class="note" id="note" aria-label="Solde du portefeuille">
+              <svg class="guilloche" id="guilloche-note" viewBox="-190 -190 380 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"></svg>
+              <div class="holo" aria-hidden="true"></div>
+              <div class="note-body">
+                <p class="note-top"><span>Axiomon</span><span>Réseau de test Sepolia</span></p>
+                <p class="note-label">Solde</p>
+                <p class="amount"><span id="balance-axn">0</span> <span class="unit">AXN</span></p>
+                <div class="serial">
+                  <span class="serial-no">N°</span>
+                  <code id="address" title="Adresse de ton portefeuille">–</code>
+                </div>
+                <dl class="facts">
+                  <div><dt>Limite par transfert</dt><dd id="max-transfer">–</dd></div>
+                  <div><dt>Reste aujourd’hui</dt><dd id="daily-remaining">–</dd></div>
+                  <div><dt>Frais de réseau (ETH)</dt><dd id="balance-eth">–</dd></div>
+                </dl>
+              </div>
+            </article>
+          </div>
+
+          <div class="panel">
+            <div class="seg" role="tablist" aria-label="Action">
+              <button type="button" role="tab" id="seg-send" aria-selected="true" data-pane="send">Envoyer</button>
+              <button type="button" role="tab" id="seg-receive" aria-selected="false" data-pane="receive">Recevoir</button>
+            </div>
+
+            <p id="frozen-banner" class="banner" role="alert" hidden>Ton compte est gelé par l’administrateur : tu peux consulter ton historique, mais plus envoyer d’AXN.</p>
+            <form id="send-form" class="stack" autocomplete="off" novalidate>
+              <label>Destinataire
+                <input id="to" name="to" list="user-list" required autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Nom d’utilisateur ou adresse 0x…">
+                <datalist id="user-list"></datalist>
+              </label>
+              <label>Montant en AXN
+                <input id="amount" name="amount" inputmode="decimal" required autocomplete="off" placeholder="0">
+                <span id="amount-hint" class="field-hint"></span>
+              </label>
+              <label>Note <span class="opt">(facultatif)</span>
+                <input id="memo" name="note" maxlength="80" autocomplete="off" placeholder="Ex. : remboursement du restaurant">
+              </label>
+              <div class="chips" aria-label="Montants rapides">
+                <button type="button" class="chip" data-amount="10">10</button>
+                <button type="button" class="chip" data-amount="50">50</button>
+                <button type="button" class="chip" data-amount="100">100</button>
+                <button type="button" class="chip" data-amount="max">Maximum</button>
+              </div>
+              <button id="send-btn" class="primary" type="submit" disabled>Envoyer</button>
+              <p id="send-msg" class="msg" role="status"></p>
+            </form>
+
+            <div id="receive-pane" class="stack" hidden>
+              <div>
+                <p class="field-label">Ton adresse</p>
+                <div class="addr-card">
+                  <code id="address-big"></code>
+                  <button id="copy-address" class="secondary small" type="button"><svg class="ic" viewBox="0 0 24 24"><use href="#i-copy"/></svg><span>Copier</span></button>
+                </div>
+                <p class="hint">Donne cette adresse, ou ton nom d’utilisateur, à la personne qui veut t’envoyer des AXN.</p>
+              </div>
+              <div class="faucet">
+                <h3>AXN de test</h3>
+                <p id="faucet-text" class="hint"></p>
+                <button id="faucet-btn" class="primary" type="button">Recevoir des AXN</button>
+                <p id="faucet-msg" class="msg" role="status"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-right">
+          <div class="history-head">
+            <h2>Historique</h2>
+            <div class="filters" role="group" aria-label="Filtrer l’historique">
+              <button type="button" class="filter" data-filter="all" aria-pressed="true">Tout</button>
+              <button type="button" class="filter" data-filter="out" aria-pressed="false">Envoyés</button>
+              <button type="button" class="filter" data-filter="in" aria-pressed="false">Reçus</button>
+            </div>
+          </div>
+          <div class="history-tools">
+            <input id="history-search" type="search" placeholder="Rechercher (nom, note, montant…)" aria-label="Rechercher dans l’historique" autocomplete="off">
+            <button type="button" id="export-csv" class="secondary small">Exporter en CSV</button>
+          </div>
+          <div id="history" class="history" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- Vue « À propos du token » -->
+      <section id="view-token" hidden>
+        <h2>À propos du token</h2>
+        <p class="hint">Les caractéristiques d’Axiomon, lues en direct sur la blockchain.</p>
+        <dl id="token-facts" class="facts-grid"></dl>
+        <p id="token-link" class="hint"></p>
+      </section>
+      <!-- Vue administration -->
+      <section id="view-admin" hidden>
+        <div class="dash-head">
+          <div>
+            <h2>Tableau de bord</h2>
+            <p class="live" id="live"><span class="live-dot"></span><span id="live-text">En direct</span></p>
+          </div>
+          <div class="dash-tools">
+            <div class="seg small" id="range-seg" role="group" aria-label="Période">
+              <button type="button" data-range="24h" aria-pressed="true">24 h</button>
+              <button type="button" data-range="7d" aria-pressed="false">7 jours</button>
+              <button type="button" data-range="30d" aria-pressed="false">30 jours</button>
+            </div>
+            <button type="button" id="live-toggle" class="chip" aria-pressed="false">Pause</button>
+          </div>
+        </div>
+
+        <div id="kpis" class="kpis"></div>
+
+        <div class="supply">
+          <div class="supply-head"><span>Offre créée sur le plafond</span><span id="supply-text"></span></div>
+          <div class="bar" role="img" aria-label="Part de l’offre maximale déjà créée"><span id="supply-fill"></span></div>
+        </div>
+
+        <div class="dgrid two">
+          <article class="dcard">
+            <header><h3>Transactions</h3><p class="sub" id="tx-sub"></p></header>
+            <div class="chart" id="chart-tx"></div>
+          </article>
+          <article class="dcard">
+            <header><h3>Volume transféré</h3><p class="sub" id="vol-sub"></p></header>
+            <div class="chart" id="chart-vol"></div>
+          </article>
+        </div>
+
+        <div class="dgrid three">
+          <article class="dcard">
+            <header><h3>Répartition</h3><p class="sub">Par type, sur la période</p></header>
+            <div id="chart-kinds" class="kinds"></div>
+          </article>
+          <article class="dcard">
+            <header><h3>Plus gros soldes</h3><p class="sub">Lus sur la blockchain</p></header>
+            <ol id="holders" class="holders"></ol>
+          </article>
+          <article class="dcard">
+            <header><h3>Activité récente</h3><p class="sub">Mise à jour en direct</p></header>
+            <ul id="activity" class="activity"></ul>
+          </article>
+        </div>
+
+        <div class="admin-forms">
+          <form id="mint-form" class="stack" autocomplete="off">
+            <h3>Créer des AXN</h3>
+            <label>Destinataire <input name="to" required autocomplete="off" autocapitalize="none" spellcheck="false"></label>
+            <label>Montant en AXN <input name="amount" inputmode="decimal" required autocomplete="off"></label>
+            <button class="primary" type="submit">Créer</button>
+          </form>
+          <form id="limit-form" class="stack" autocomplete="off">
+            <h3>Limite par transfert</h3>
+            <label>Nouvelle limite en AXN <input name="amount" inputmode="decimal" required autocomplete="off"></label>
+            <button class="primary" type="submit">Enregistrer la limite</button>
+          </form>
+          <form id="daily-form" class="stack" autocomplete="off">
+            <h3>Limite journalière par adresse</h3>
+            <label>Nouvelle limite en AXN par 24 h <input name="amount" inputmode="decimal" required autocomplete="off"></label>
+            <button class="primary" type="submit">Enregistrer la limite</button>
+          </form>
+        </div>
+        <p id="admin-msg" class="msg" role="status"></p>
+        <h3>Utilisateurs</h3>
+        <div class="table-wrap">
+          <table class="ledger">
+            <thead><tr><th>Nom</th><th>Adresse</th><th>Rôle</th><th>Inscription</th><th>Statut</th><th>Action</th></tr></thead>
+            <tbody id="users-body"></tbody>
+          </table>
+        </div>
+        <h3>Journal d’audit</h3>
+        <div class="table-wrap">
+          <table class="ledger">
+            <thead><tr><th>Date</th><th>Auteur</th><th>Action</th><th>Détail</th></tr></thead>
+            <tbody id="audit-body"></tbody>
+          </table>
+        </div>
+        <div id="chart-tip" class="chart-tip" hidden></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <dialog id="confirm" aria-labelledby="confirm-title">
+    <form method="dialog" class="confirm">
+      <h2 id="confirm-title">Confirmer l’envoi</h2>
+      <p class="confirm-amount"><span id="c-amount"></span> <span class="unit">AXN</span></p>
+      <dl class="kv">
+        <div><dt>À</dt><dd id="c-to"></dd></div>
+        <div id="c-note-row" hidden><dt>Note</dt><dd id="c-note"></dd></div>
+        <div><dt>Frais de réseau</dt><dd id="c-fee">Estimation…</dd></div>
+      </dl>
+      <p class="hint">Une transaction envoyée sur la blockchain ne peut plus être annulée.</p>
+      <div class="row">
+        <button value="cancel" class="secondary">Annuler</button>
+        <button value="ok" class="primary">Envoyer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>

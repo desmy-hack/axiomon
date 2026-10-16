@@ -1,0 +1,35 @@
+{
+  "name": "axiomon-app",
+  "version": "1.0.0",
+  "description": "Axiomon (AXN) : cryptomonnaie ERC-20 sur Sepolia avec wallets, comptes utilisateurs, historique et interface web",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "compile": "node scripts/compile.js",
+    "deploy": "node scripts/deploy.js",
+    "start": "node src/server.js",
+    "chain": "hardhat node",
+    "smoke": "node scripts/smoke-test.js",
+    "test:features": "node scripts/features-test.js",
+    "verify-info": "node scripts/verify-info.js",
+    "migrate:sqlite": "node scripts/migrate-sqlite-to-postgres.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "5.0.2",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": ">=11.0.0",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.0",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "solc": "0.8.24",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "hardhat": "^2.22.0"
+  }
+}
